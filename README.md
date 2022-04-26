@@ -1,7 +1,15 @@
+# Note
+Code contained in this file is originally from [repo](https://github.com/AutoML-Research/SNAG).
+
+Unless specified at the top of a file, all code within a file originally belongs the authors of the original code.
+
+Student: Sylvester Shan
+uid: u6049249
+
 # Simplifying Architecture Search for Graph Neural Network
 
 #### Overview
-This is the code for our paper [Simplified Neural Architecture search for Graph Neural Networks](https://arxiv.org/pdf/2008.11652.pdf), publised in CSSA-CIKM 2020.
+This is the code for paper [Simplified Neural Architecture search for Graph Neural Networks](https://arxiv.org/pdf/2008.11652.pdf), publised in CSSA-CIKM 2020.
 It is a neural architecture search (NAS) for graph neural network (GNN).
 To obtain optimal data-specific GNN architectures, we propose the SNAG framework, consisting of a simpler yet more expressive search space and a RL-based search algorithm.
 

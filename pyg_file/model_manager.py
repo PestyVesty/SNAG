@@ -1,3 +1,9 @@
+"""
+Modifeid creating new Class
+Check TODOs about getting chemical molecules from this instead 
+"""
+
+from pdb import set_trace
 import os.path as osp
 import time
 import torchsnooper
@@ -19,6 +25,7 @@ from torch import cat
 import warnings
 from rlctr.utils.model_utils import EarlyStop, TopAverage, process_action
 warnings.filterwarnings('ignore')
+
 def loader_acc(model, loader,loss_fn):
     model.eval()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -99,18 +106,36 @@ def load_data(dataset="Cora", supervised=False, full_data=True):
 
 
 class GeoCitationManager(object):
+    """
+    >>> Checkpoint 3.1: a model manager
+                        Refer to the comments on the steps of what this file
+                        does, but when implementing new one, refer to 
+                        GeoCitationManager_PPI (only __init__ and run_model are
+                        different, hence only these two functions will be viewed
+                        in this class, others are omitted for now)
+    Next checkpoint: 3.2 in this file load_data()
+    """
     def __init__(self, args):
+        
+        # Step 1: Load the dataset accordingly by attribute supervised
         if hasattr(args, "supervised"):
             self.data = load_data(args.dataset, args.supervised)
         else:
             self.data = load_data(args.dataset)
+        
+        # Step 2: Assign args
         self.args = args
+
         if self.args.dataset in ["Cora", "Citeseer", "Pubmed", "Computers", "Photo", "CS", "Physics"]:
+
+            # Step 3: add the following information to args.in_feats
+            #         PPI doesn't send the data to the device
             self.args.in_feats = self.in_feats = self.data.num_features
             self.args.num_class = self.n_classes = self.data.y.max().item() + 1
             device = torch.device('cuda' if args.cuda else 'cpu')
             self.data.to(device)
 
+        # Step 4: other parameters that are set
         self.early_stop_manager = EarlyStop(10)
         self.reward_manager = TopAverage(10)
 
@@ -126,6 +151,7 @@ class GeoCitationManager(object):
 
         self.loss_fn = torch.nn.functional.nll_loss
 
+        # After init, everything else is the same, except the function run_model
     def evaluate(self, actions=None, format="two"):
         """
         return actions validation acc directly and without training models.
@@ -190,6 +216,7 @@ class GeoCitationManager(object):
         return self.train(actions, format, hyperargs)
 
     def run_model(self, model, optimizer, loss_fn, data, epochs, early_stop=50, return_best=False, cuda=True, need_early_stop=False, show_info=False, evaluate=False):
+        # Step 1: optimizers and hyperargs (same)
         if self.hyperargs!=None:
             # use HyperOpt args to fine-tuning derive models.
             lr = 10 ** self.hyperargs['learning_rate']
@@ -201,16 +228,19 @@ class GeoCitationManager(object):
             elif self.hyperargs['optimizer'] == 'adagrad':
                 optimizer = torch.optim.Adagrad(model.parameters(), lr=lr, weight_decay=w_decay)
 
+        # Step 2: determine if controller early stops (same)
         if self.args.update_shared == False:
             # training controller over, derive models, without early stop
             early_stop = epochs
         else:
             early_stop = self.args.early_stop_epoch
 
+        # Step 3: Declaring parameters and start the timer (diff)
         dur = []
         begin_time = time.time()
         best_performance = 0
         min_val_loss = float("inf")
+
         model_val_acc = 0
         print("Number of train data:", data.train_mask.sum())
         early_stop_patient = 0
@@ -265,17 +295,21 @@ class GeoCitationManager(object):
             return model, model_val_acc, best_performance
         else:
             return model, model_val_acc
-            
+
 class GeoCitationManager_PPI(GeoCitationManager):
     def __init__(self, args):
         super(GeoCitationManager_PPI, self).__init__(args)
+        
+        
         self.train_dataset, _, _, self.train_loader, self.val_loader, self.test_loader = load_data(args.dataset, args.supervised)
         self.data = self.train_dataset
 
         self.args.in_feats = self.in_feats = self.train_dataset.num_features
         self.args.num_class = self.n_classes = self.train_dataset.num_classes
         self.loss_fn = torch.nn.BCEWithLogitsLoss()
+
     def run_model(self, model, optimizer, loss_fn, data, epochs, early_stop=50, return_best=False, cuda=True, need_early_stop=False, show_info=False, evaluate=False):
+        # Step 1: optimizers and hyperargs (same)
         if self.hyperargs != None:
             # use HyperOpt args to fine-tuning derive models.
             lr = 10 ** self.hyperargs['learning_rate']
@@ -287,11 +321,13 @@ class GeoCitationManager_PPI(GeoCitationManager):
             elif self.hyperargs['optimizer'] == 'adagrad':
                 optimizer = torch.optim.Adagrad(model.parameters(), lr=lr, weight_decay=w_decay)
 
+        # Step 2: determine if controller early stops (same)
         if self.args.update_shared == False:
             early_stop = epochs
         else:
             early_stop = self.args.early_stop_epoch
 
+        # Step 3: Declaring parameters and start the timer 
         dur = []
         begin_time = time.time()
         best_performance = 0

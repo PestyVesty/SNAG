@@ -109,7 +109,8 @@ class Trainer(object):
                                               search_space=self.search_space,
                                               cuda=self.args.cuda, controller_hid=self.args.controller_hid)
 
-        # >>> Checkpoint 3: 
+        # >>> Checkpoint 3: creating submodel_manager for the dataset (seems like its where to load the model and stuff)
+        # Next Checkpoints: 3.1 GeoCitationManager
         if self.args.dataset in ["Cora", "Citeseer", "Pubmed", "Computers", "Photo", "CS", "Physics"]:
             self.submodel_manager = GeoCitationManager(self.args)
         elif self.args.dataset == 'PPI':
