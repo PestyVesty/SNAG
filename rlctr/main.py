@@ -1,6 +1,10 @@
 """Entry point."""
-
+"""
+Modification:
+Slight modification for parsing argument 'mode'. -- Sylvester
+"""
 import argparse
+from secrets import choice
 import time
 
 import torch
@@ -38,7 +42,8 @@ def register_default_args(parser):
     parser.add_argument('--entropy_coeff', type=float, default=1e-4)
     parser.add_argument('--shared_rnn_max_length', type=int, default=35)
     parser.add_argument('--load_path', type=str, default='')
-    parser.add_argument('--search_mode', type=str, default='macro')
+    parser.add_argument('--search_mode', type=str, default='snag',
+                        choices=['snag','graphnas', 'injective'])
     parser.add_argument('--format', type=str, default='two')
     # parser.add_argument('--format', type=str, default='two')
     parser.add_argument('--max_epoch', type=int, default=30)
@@ -102,16 +107,18 @@ def register_default_args(parser):
 
 def main(args):  # pylint:disable=redefined-outer-name
 
-    if args.cuda and not torch.cuda.is_available():  # cuda is not available
+    if args.cuda and not torch.cuda.is_available():
         args.cuda = False
 
     torch.cuda.set_device(args.gpu)
-    torch.manual_seed(args.random_seed)
+    torch.manual_seed(args.random_seed) # TODO: fix the seeds here
     if args.cuda:
         torch.cuda.manual_seed(args.random_seed)
 
     utils.makedirs(args.dataset)
 
+    # >>> Checkpoint 1: Build the trainer and train it depending on the mode
+    # Next checkpoint in trainer.py
     trnr = trainer.Trainer(args)
 
     if args.mode =='train':

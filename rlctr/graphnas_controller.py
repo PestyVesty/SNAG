@@ -2,7 +2,11 @@ import torch
 import torch.nn.functional as F
 
 import rlctr.utils.tensor_utils as utils
-
+"""
+>>> Checkpoint 2.3: Building the RNN controller.
+                    Have not gone into depths of this file as we are not
+                    interest in changing the controller
+"""
 
 # not contains skip-connection
 class SimpleNASController(torch.nn.Module):

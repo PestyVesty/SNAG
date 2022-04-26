@@ -1,4 +1,7 @@
 
+"""
+Added option for using injective search space. -- Sylvester
+"""
 import time
 import numpy as np
 import scipy.signal
@@ -66,6 +69,13 @@ class Trainer(object):
         if self.args.mode == "derive":
             self.load_model()
 
+    # >>> Checkpoint 2: build the search space depending on the model and dataset. 
+    # First builds model for GraphNAS or SNAG (with respect to dataset), then builds
+    # the model for the RNN controller
+    # Next Checkpoints: 2.1 rlctr.search_space GraphNas_SearchSpace 
+    #                   2.2 rlctr.search_space MacroSearchSpace
+    #                   2.3 rlctr.graphnas_controller SimpleNASController (RNN controller)
+    #*** First build the search space in search_space.py, then create it below
     def build_model(self):
         self.with_retrain = True
         if self.args.search_mode == 'graphnas': # GraphNAS
@@ -75,14 +85,22 @@ class Trainer(object):
             self.action_list = search_space_cls.generate_action_list(self.args.layers_of_child_model)
             if self.args.dataset == 'PPI':
                 # OOM
+                # Change the search space with respect to a specific dataset
                 self.search_space['hidden_units'] = [4, 8, 16, 32, 64, 128]
                 self.search_space['number_of_heads'] = [1, 2, 4, 6, 8, 16]
 
-        else:  #SNAG
+        elif self.args.search_mode == 'snag':  #SNAG
             from rlctr.search_space import MacroSearchSpace
             search_space_cls = MacroSearchSpace()
             self.search_space = search_space_cls.get_search_space()
             self.action_list = search_space_cls.generate_action_list(self.args.layers_of_child_model)
+        
+        else: # Injective Search Space
+            from rlctr.search_space import InjectiveSearchSpace
+            search_space_cls = InjectiveSearchSpace()
+            self.search_space = search_space_cls.get_search_space()
+            self.action_list = search_space_cls.generate_action_list(self.args.layers_of_child_model)
+            # FIXME: Check if the else statement is sufficient
 
         # build RNN controller
         from rlctr.graphnas_controller import SimpleNASController
@@ -91,6 +109,7 @@ class Trainer(object):
                                               search_space=self.search_space,
                                               cuda=self.args.cuda, controller_hid=self.args.controller_hid)
 
+        # >>> Checkpoint 3: 
         if self.args.dataset in ["Cora", "Citeseer", "Pubmed", "Computers", "Photo", "CS", "Physics"]:
             self.submodel_manager = GeoCitationManager(self.args)
         elif self.args.dataset == 'PPI':
@@ -206,6 +225,7 @@ class Trainer(object):
                        'weight_decay': hp.uniform("wr", -5, -3),
                        'optimizer': hp.choice('opt', ['adagrad', 'adam']),
                       }
+
         if self.args.dataset in ["Pubmed", "Computers", "CS"]:
             hyper_space['head_num'] = hp.choice('head_num', [1, 2, 4])
             hyper_space['hidden_size'] = hp.choice('hidden_size',[8,16,32,48,64])

@@ -1,7 +1,40 @@
+"""
+Defined new search space InjectiveSearchSpace. -- Sylvester
+"""
 import torch
+class InjectiveSearchSpace(object):
+    def __init__(self, search_space=None):
+        if search_space:
+            self.search_space = search_space
+        else:
+            # TODO: Define the injective operators in the search space
+            self.search_space = {
+                # TODO: compare to MacroSearchSpace and GraphNAS_SearchSpace, their dictionary header
+                # are different, is there a particular reason for this?
+            }
+        
+    def get_search_space(self):
+        return self.search_space
 
+    def generate_action_list(self, num_of_layers=2):
+        """
+        Returns the action list
+
+        Input:
+            - num_of_layers: total layers of child model, default 2
+        """
+        # TODO: implment this with respect to the other the other two class below
+        action_names = list(self.search_space.keys())
+        action_list = None
+        pass
 
 class MacroSearchSpace(object):
+    """
+    >>> Checkpoint 2.2: Similar to 2.1, except the search_space name is different
+                        The generate_action_list is slightly different compared to GraphNAS,
+                        suspect this is due to using layer aggregation and JK_mode
+    """
+
     def __init__(self, search_space=None):
         if search_space:
             self.search_space = search_space
@@ -30,6 +63,7 @@ class MacroSearchSpace(object):
         return action_list
 
 class GraphNAS_SearchSpace(object):
+    # >>>Checkpoint 2.1: Defining the search space for GraphNAS
     def __init__(self, search_space=None):
         if search_space:
             self.search_space = search_space
@@ -47,6 +81,10 @@ class GraphNAS_SearchSpace(object):
         return self.search_space
 
     def generate_action_list(self, num_of_layers=2):
+        """
+        The action_list is just the action names repeat x number of times, where x
+        is the number of layers for the child model...interesting
+        """
         action_names = list(self.search_space.keys())
         action_list = action_names * num_of_layers
         print('action_list:', action_list)

@@ -265,6 +265,7 @@ class GeoCitationManager(object):
             return model, model_val_acc, best_performance
         else:
             return model, model_val_acc
+            
 class GeoCitationManager_PPI(GeoCitationManager):
     def __init__(self, args):
         super(GeoCitationManager_PPI, self).__init__(args)
