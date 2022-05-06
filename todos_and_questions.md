@@ -16,7 +16,7 @@ Search_Space.py: in GraphNAS_SearchSpace, what does "number_of_heads" refer to?
 ### For reading
 - [ ] Read Qing Wangs paper
 - [ ] Read GNN papers
-- [ ] 
+
 ### For writing
 - [ ] GNN
 - [ ] GCN
@@ -24,4 +24,13 @@ Search_Space.py: in GraphNAS_SearchSpace, what does "number_of_heads" refer to?
 
 ### README file update
 - [ ] Update commands for "injective" search space
-- [ ] 
+
+
+#### Todays TODO:
+
+- [ ] Finish writing WL part
+- [ ] Overview for GNN
+- [ ] Understand and write notes down for
+  - [ ] GCN (motivated by CNN)
+  - [ ] GIN (motivated by WL)
+- [ ] Understand what needs to be done for the experiment
