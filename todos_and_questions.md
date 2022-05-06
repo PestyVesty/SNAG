@@ -2,6 +2,9 @@
 Search_Space.py: in GraphNAS_SearchSpace, what does "number_of_heads" refer to?
 
 # TODOs
+## Top priority
+- [ ] Actually confused what the goal is. Read past papers and figure out why we are doing this
+    - [ ] Figure out past method and compare it to the experiment we did
 ### For coding
 - [ ] finish class injectivesearchspace in searchspace.py, then in trainer.py finish the if case for it
 - [x] Finish doing check point 3 (submodel_manager)
@@ -16,7 +19,7 @@ Search_Space.py: in GraphNAS_SearchSpace, what does "number_of_heads" refer to?
 ### For reading
 - [ ] Read Qing Wangs paper
 - [ ] Read GNN papers
-- [ ] 
+
 ### For writing
 - [ ] GNN
 - [ ] GCN
@@ -24,4 +27,4 @@ Search_Space.py: in GraphNAS_SearchSpace, what does "number_of_heads" refer to?
 
 ### README file update
 - [ ] Update commands for "injective" search space
-- [ ] 
+

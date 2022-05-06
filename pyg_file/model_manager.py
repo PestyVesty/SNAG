@@ -151,7 +151,7 @@ class GeoCitationManager(object):
 
         self.loss_fn = torch.nn.functional.nll_loss
 
-        # After init, everything else is the same, except the function run_model
+        ###### After __init__, everything else is the same, except the function run_model
     def evaluate(self, actions=None, format="two"):
         """
         return actions validation acc directly and without training models.
@@ -245,6 +245,7 @@ class GeoCitationManager(object):
         print("Number of train data:", data.train_mask.sum())
         early_stop_patient = 0
 
+        # Step 4: training and evaluation (core step and the major difference)
         for epoch in range(1, epochs + 1):
             model.train()
             t0 = time.time()
@@ -298,6 +299,7 @@ class GeoCitationManager(object):
 
 class GeoCitationManager_PPI(GeoCitationManager):
     def __init__(self, args):
+
         super(GeoCitationManager_PPI, self).__init__(args)
         
         
@@ -334,11 +336,10 @@ class GeoCitationManager_PPI(GeoCitationManager):
         min_val_loss = float("inf")
 
         device = torch.device('cuda' if cuda else 'cpu')
-
         model_val_acc = 0
-
         early_stop_patient = 0
 
+        # Step 4: training and evaluation (core step and the major difference)
         if evaluate:
             val_acc, _ = loader_acc(model, self.val_loader, loss_fn)
             print(' valid_acc:', val_acc)
