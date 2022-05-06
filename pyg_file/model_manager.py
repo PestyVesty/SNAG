@@ -14,7 +14,7 @@ import torch_geometric.transforms as T
 from torch_geometric.datasets import TUDataset
 
 from torch_geometric.utils import degree
-from torch_geometric.datasets import Planetoid, Coauthor, Amazon,PPI
+from torch_geometric.datasets import Planetoid, Coauthor, Amazon,PPI, MoleculeNet
 from torch_geometric.data import DataLoader
 
 from .gnn import GraphNet, GraphNet_GraphNAS
@@ -77,6 +77,9 @@ def load_data(dataset="Cora", supervised=False, full_data=True):
         val_loader = DataLoader(val_dataset, batch_size=2, shuffle=False)
         test_loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
         return train_dataset, val_dataset, test_dataset, train_loader, val_loader, test_loader
+    elif dataset in ["ESOL", "FreeSolv", "Lipo", "PCBA", "MUV", "HIV", "BACE", "BBPB", "Tox21", "ToxCast", "SIDER", "ClinTox"]:
+        dataset = MoleculeNet(path, dataset)
+
     data = dataset[0]
     if supervised:
         if full_data:
