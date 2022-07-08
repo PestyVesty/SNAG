@@ -1,33 +1,38 @@
 """
-Defined new search space InjectiveSearchSpace. -- Sylvester
+Defined new search space, but has no use for it. -- Sylvester
 """
 import torch
-class InjectiveSearchSpace(object):
+class MySearchSpace(object):
+    '''
+    My search space.
+    '''
     def __init__(self, search_space=None):
         if search_space:
             self.search_space = search_space
         else:
-            # TODO: Define the injective operators in the search space
+            # Define operators in search space
+            ### Edit here if want to experiment with different search space
             self.search_space = {
-                # TODO: compare to MacroSearchSpace and GraphNAS_SearchSpace, their dictionary header
-                # are different, is there a particular reason for this?
+                "gnn_method": [],
+                'activate_function': [],
+                'use_skip': [0, 1],
+                'jk_mode': ["concat", "lstm", "maxpool"],
             }
-        
+
     def get_search_space(self):
         return self.search_space
 
+    # Assign operator category for controller RNN outputs.
+    # The controller RNN will select operators from search space according to operator category.
     def generate_action_list(self, num_of_layers=2):
-        """
-        Returns the action list
-
-        Input:
-            - num_of_layers: total layers of child model, default 2
-        """
-        # TODO: implment this with respect to the other the other two class below
         action_names = list(self.search_space.keys())
-        action_list = None
-        pass
-
+        action_list = action_names[0:-2] * num_of_layers
+        for i in range((num_of_layers-1)):
+            action_list.append(action_names[-2])
+        action_list.append(action_names[-1])
+        print('action_list:', action_list)
+        return action_list
+        
 class MacroSearchSpace(object):
     """
     >>> Checkpoint 2.2: Similar to 2.1, except the search_space name is different

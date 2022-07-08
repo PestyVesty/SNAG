@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import JumpingKnowledge
 
+
 class GraphNet(torch.nn.Module):
 
     def __init__(self, actions, num_feat, num_label, args, drop_out=0.6, multi_label=False, batch_normal=True, residual=True,

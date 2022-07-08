@@ -1,8 +1,8 @@
-"""Entry point."""
+"""Entry point.
+
+File has been modified to suit my needs. --Sylvester
 """
-Modification:
-Slight modification for parsing argument 'mode'. -- Sylvester
-"""
+
 import argparse
 from secrets import choice
 import time
@@ -43,7 +43,7 @@ def register_default_args(parser):
     parser.add_argument('--shared_rnn_max_length', type=int, default=35)
     parser.add_argument('--load_path', type=str, default='')
     parser.add_argument('--search_mode', type=str, default='snag',
-                        choices=['snag','graphnas', 'injective'])
+                        choices=['snag','graphnas', 'mysearch'])
     parser.add_argument('--format', type=str, default='two')
     # parser.add_argument('--format', type=str, default='two')
     parser.add_argument('--max_epoch', type=int, default=30)
@@ -105,11 +105,20 @@ def register_default_args(parser):
     parser.add_argument('--submanager_log_file', type=str, default=f"sub_manager_logger_file_{time.time()}.txt")
 
 
-def main(args):  # pylint:disable=redefined-outer-name
+    ####### Parsers for Moleclue Prediction
+    parser.add_argument('-n', '--num_workers', type=int, default=20, help="number of processors used for processing data. default -1, -indicating uses all cpu cores")
+    parser.add_argument('-s', '--split', choices=['scaffold', 'random'], default='scaffold',
+                        help='Dataset splitting method (default: scaffold)')
+    parser.add_argument('-sr', '--split-ratio', default='0.8,0.1,0.1', type=str,
+                    help='Proportion of the dataset to use for training, validation and test, '
+                            '(default: 0.8,0.1,0.1)')
 
+def main(args):  # pylint:disable=redefined-outer-name
+    
     if args.cuda and not torch.cuda.is_available():
         args.cuda = False
-
+        print("Not using GPU")
+        quit()
     torch.cuda.set_device(args.gpu)
     torch.manual_seed(args.random_seed) # TODO: fix the seeds here
     if args.cuda:

@@ -10,6 +10,7 @@ from dgl.data import load_data
 from graphnas.gnn import GraphNet
 from graphnas.utils.model_utils import EarlyStop, TopAverage, process_action
 
+from mol_loader import load_MolDataset
 
 def load(args, save_file=".npy"):
     save_file = args.dataset + save_file

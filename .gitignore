@@ -2,3 +2,6 @@
 pyg_file/__pycache__/*
 rlctr/__pycache__/*
 rlctr/utils/__pycache__/*
+dataset
+test.py
+*bin

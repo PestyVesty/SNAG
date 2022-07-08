@@ -1,7 +1,10 @@
 
-"""
-Added option for using injective search space. -- Sylvester
-"""
+'''
+File has been modified to suit my needs. --Sylvester
+'''
+
+
+from pdb import set_trace
 import time
 import numpy as np
 import scipy.signal
@@ -10,7 +13,7 @@ import torch
 import warnings
 warnings.filterwarnings('ignore')
 import rlctr.utils.tensor_utils as utils
-from pyg_file.model_manager import GeoCitationManager,GeoCitationManager_PPI
+from pyg_file.model_manager import GeoCitationManager, GeoCitationManager_Mol,GeoCitationManager_PPI
 import hyperopt
 from hyperopt import fmin, tpe, hp, Trials, partial, STATUS_OK, rand
 
@@ -72,13 +75,15 @@ class Trainer(object):
     # >>> Checkpoint 2: build the search space depending on the model and dataset. 
     # First builds model for GraphNAS or SNAG (with respect to dataset), then builds
     # the model for the RNN controller
-    # Next Checkpoints: 2.1 rlctr.search_space GraphNas_SearchSpace 
-    #                   2.2 rlctr.search_space MacroSearchSpace
-    #                   2.3 rlctr.graphnas_controller SimpleNASController (RNN controller)
+    # Next Checkpoints: 2.1 rlctr.search_space GraphNas_SearchSpace                            (Optional, could skip)
+    #                   2.2 rlctr.search_space MacroSearchSpace     
+    #                   2.3 rlctr.graphnas_controller SimpleNASController (RNN controller)     (Optional, could skip)
     #*** First build the search space in search_space.py, then create it below
     def build_model(self):
         self.with_retrain = True
-        if self.args.search_mode == 'graphnas': # GraphNAS
+        
+        ##### GraphNAS
+        if self.args.search_mode == 'graphnas': 
             from rlctr.search_space import GraphNAS_SearchSpace
             search_space_cls = GraphNAS_SearchSpace()
             self.search_space = search_space_cls.get_search_space()
@@ -88,19 +93,22 @@ class Trainer(object):
                 # Change the search space with respect to a specific dataset
                 self.search_space['hidden_units'] = [4, 8, 16, 32, 64, 128]
                 self.search_space['number_of_heads'] = [1, 2, 4, 6, 8, 16]
-
-        elif self.args.search_mode == 'snag':  #SNAG
+        
+        #####SNAG
+        elif self.args.search_mode == 'snag':  
             from rlctr.search_space import MacroSearchSpace
             search_space_cls = MacroSearchSpace()
             self.search_space = search_space_cls.get_search_space()
             self.action_list = search_space_cls.generate_action_list(self.args.layers_of_child_model)
         
-        else: # Injective Search Space
-            from rlctr.search_space import InjectiveSearchSpace
-            search_space_cls = InjectiveSearchSpace()
+        ##### Declaring my own search space
+        ##### FIXME: Not used yet
+        elif self.args.search_mode == 'mysearch':
+            from rlctr.search_space import MySearchSpace
+            search_space_cls = MySearchSpace()
             self.search_space = search_space_cls.get_search_space()
             self.action_list = search_space_cls.generate_action_list(self.args.layers_of_child_model)
-            # FIXME: Check if the else statement is sufficient
+            
 
         # build RNN controller
         from rlctr.graphnas_controller import SimpleNASController
@@ -115,6 +123,11 @@ class Trainer(object):
             self.submodel_manager = GeoCitationManager(self.args)
         elif self.args.dataset == 'PPI':
             self.submodel_manager = GeoCitationManager_PPI(self.args)
+        
+        # New Manager for dataset from MoleculeNet 
+        elif self.args.dataset in ["ESOL", "FreeSolv", "Lipo", "PCBA", "MUV", "HIV", "BACE", "BBPB", "Tox21", "ToxCast", "SIDER", "ClinTox"]:
+            # following model calls load model twice because geocitationmanager is directly called from it
+            self.submodel_manager = GeoCitationManager_Mol(self.args)
         else:
             print('Dataset error!')
             exit()
@@ -134,6 +147,7 @@ class Trainer(object):
         gnn.append(args['jk1'])
         gnn.append(args['jk_mode'])
         return gnn
+
     def random_bayes_search(self, mode='random', max_evals=5000):
         rb_search_space = {}
         for i in range(self.args.layers_of_child_model):
